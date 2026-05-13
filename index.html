@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shift Tracker Pro V2</title>
+    <title>Shift Tracker Pro V3</title>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; touch-action: manipulation; }
         body { margin: 0; padding: 0; background-color: #121212; color: #ffffff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
@@ -18,17 +18,17 @@
         /* Main App Screen */
         #app-screen { display: none; flex-direction: column; height: 100%; }
         
-        /* 3-Column Header */
-        .header { display: flex; justify-content: space-between; padding: 20px 10px 15px; background-color: #1c1c1e; }
-        .stat-box { text-align: center; flex: 1; border-right: 1px solid #38383a; }
-        .stat-box:last-child { border-right: none; }
-        .stat-label { font-size: 11px; color: #ebebf5; opacity: 0.6; margin-bottom: 5px; text-transform: uppercase; font-weight: 600;}
-        .stat-value { font-size: 28px; font-weight: 800; }
+        /* 2x2 Grid Header */
+        .header { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 15px; background-color: #1c1c1e; }
+        .stat-box { text-align: center; padding: 12px 5px; background-color: #2c2c2e; border-radius: 12px; }
+        .stat-label { font-size: 12px; color: #ebebf5; opacity: 0.6; margin-bottom: 5px; text-transform: uppercase; font-weight: 600;}
+        .stat-value { font-size: 26px; font-weight: 800; }
         
         .text-blue { color: #0a84ff; }
         .text-red { color: #ff453a; }
         .text-green { color: #32d74b; }
         .text-purple { color: #bf5af2; }
+        .text-gold { color: #ffd60a; }
 
         /* Top Controls: Undo & End Shift */
         .top-controls { display: flex; justify-content: space-between; padding: 10px 15px; background-color: #1c1c1e; border-bottom: 1px solid #38383a; }
@@ -47,7 +47,7 @@
         .btn-tip { background-color: #ffd60a; color: #000; height: 55px; font-size: 20px; }
         
         .expense-row { display: flex; gap: 10px; }
-        .expense-input { flex: 1; margin: 0; padding: 15px; font-size: 18px; }
+        .expense-input { flex: 1; margin: 0; padding: 15px; font-size: 18px; border-radius: 12px; border: none; background: #2c2c2e; color: white; outline: none; text-align: center;}
         .btn-expense { flex: 1; background-color: #ff9f0a; color: white; border-radius: 12px; font-size: 18px; }
     </style>
 </head>
@@ -74,8 +74,12 @@
             <div class="stat-value text-green" id="unpaid-display">0</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Rosseta</div>
+            <div class="stat-label">Total Rosseta</div>
             <div class="stat-value text-purple" id="rosseta-display">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">My Tips</div>
+            <div class="stat-value text-gold" id="tips-display">0</div>
         </div>
     </div>
 
@@ -134,7 +138,7 @@
     let actionHistory = [];
 
     window.onload = function() {
-        const savedData = localStorage.getItem('shiftDataV2');
+        const savedData = localStorage.getItem('shiftDataV3');
         if (savedData) {
             const data = JSON.parse(savedData);
             fond = data.fond || 0;
@@ -179,7 +183,7 @@
         const amount = parseFloat(input.value);
         if (amount > 0) {
             addAction('expense', amount);
-            input.value = ''; // clear field after clicking deduct
+            input.value = ''; 
         }
     }
 
@@ -198,8 +202,8 @@
     }
 
     function endShift() {
-        if(confirm("End shift and clear all data?")) {
-            localStorage.removeItem('shiftDataV2');
+        if(confirm(`End shift? \n\nYour Take-Home Profit (Tips): ${totalTips} DH\nShop Owed (from pocket expenses): ${totalExpenses} DH\n\nPress OK to clear all data.`)) {
+            localStorage.removeItem('shiftDataV3');
             location.reload(); 
         }
     }
@@ -214,19 +218,17 @@
             totalExpenses: totalExpenses,
             actionHistory: actionHistory
         };
-        localStorage.setItem('shiftDataV2', JSON.stringify(data));
+        localStorage.setItem('shiftDataV3', JSON.stringify(data));
     }
 
     function updateUI() {
-        // Pocket = starting cash + collected cash + tips - money spent
         const pocket = fond + totalPaid + totalTips - totalExpenses;
-        // Unpaid = orders placed - orders paid for
         const unpaid = totalOrders - totalPaid;
-        // Rosseta = Initial machine value + value of all new orders placed today
         const currentRosseta = initialRosseta + totalOrders;
 
         document.getElementById('pocket-display').innerText = pocket;
         document.getElementById('rosseta-display').innerText = currentRosseta;
+        document.getElementById('tips-display').innerText = totalTips;
         
         const unpaidEl = document.getElementById('unpaid-display');
         unpaidEl.innerText = unpaid;
