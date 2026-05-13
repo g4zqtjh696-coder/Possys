@@ -3,54 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shift Tracker</title>
+    <title>Shift Tracker Pro V2</title>
     <style>
-        /* Mobile-optimized reset to prevent zooming and text selection during fast tapping */
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; touch-action: manipulation; }
         body { margin: 0; padding: 0; background-color: #121212; color: #ffffff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* Initial Fond de Caisse Screen */
+        /* Setup Screen */
         #setup-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; padding: 20px; text-align: center; }
-        input { font-size: 28px; padding: 15px; width: 100%; max-width: 300px; text-align: center; border-radius: 12px; border: none; margin: 20px 0; background: #2c2c2e; color: white; outline: none; }
+        input { font-size: 20px; padding: 15px; width: 100%; max-width: 300px; text-align: center; border-radius: 12px; border: none; margin: 10px 0; background: #2c2c2e; color: white; outline: none; }
         button { font-size: 18px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: transform 0.05s; }
         button:active { transform: scale(0.95); filter: brightness(0.9); }
-        .start-btn { background-color: #0a84ff; color: white; width: 100%; max-width: 300px; padding: 18px; font-size: 20px; }
+        .start-btn { background-color: #0a84ff; color: white; width: 100%; max-width: 300px; padding: 18px; font-size: 20px; margin-top: 15px;}
 
-        /* Main Tracker UI */
+        /* Main App Screen */
         #app-screen { display: none; flex-direction: column; height: 100%; }
         
-        .header { display: flex; justify-content: space-between; padding: 25px 20px; background-color: #1c1c1e; border-bottom: 1px solid #38383a; }
-        .stat-box { text-align: center; width: 48%; }
-        .stat-label { font-size: 13px; color: #ebebf5; opacity: 0.6; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-value { font-size: 32px; font-weight: 800; }
+        /* 3-Column Header */
+        .header { display: flex; justify-content: space-between; padding: 20px 10px 15px; background-color: #1c1c1e; }
+        .stat-box { text-align: center; flex: 1; border-right: 1px solid #38383a; }
+        .stat-box:last-child { border-right: none; }
+        .stat-label { font-size: 11px; color: #ebebf5; opacity: 0.6; margin-bottom: 5px; text-transform: uppercase; font-weight: 600;}
+        .stat-value { font-size: 28px; font-weight: 800; }
+        
         .text-blue { color: #0a84ff; }
         .text-red { color: #ff453a; }
         .text-green { color: #32d74b; }
+        .text-purple { color: #bf5af2; }
 
-        .scroll-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 40px; }
-        .section { margin-bottom: 30px; }
-        .section-title { font-size: 14px; color: #8e8e93; margin-bottom: 12px; text-transform: uppercase; font-weight: 600; }
+        /* Top Controls: Undo & End Shift */
+        .top-controls { display: flex; justify-content: space-between; padding: 10px 15px; background-color: #1c1c1e; border-bottom: 1px solid #38383a; }
+        .btn-undo { background-color: #5e5e60; color: white; padding: 10px 15px; font-size: 14px; border-radius: 8px; flex: 1; margin-right: 10px; }
+        .btn-end { background-color: transparent; color: #ff453a; border: 1px solid #ff453a; padding: 10px 15px; font-size: 14px; border-radius: 8px; flex: 1; margin-left: 10px; }
+
+        .scroll-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 40px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-size: 13px; color: #8e8e93; margin-bottom: 10px; text-transform: uppercase; font-weight: 700; }
         
-        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .btn-grid.tips { grid-template-columns: repeat(5, 1fr); }
         
-        /* Button Styling */
-        .btn-order { background-color: #ff453a; color: white; height: 70px; font-size: 22px; }
-        .btn-pay { background-color: #32d74b; color: #000; height: 70px; font-size: 22px; }
-        .btn-tip { background-color: #ffd60a; color: #000; height: 60px; font-size: 20px; }
+        .btn-order { background-color: #ff453a; color: white; height: 65px; font-size: 22px; }
+        .btn-pay { background-color: #32d74b; color: #000; height: 65px; font-size: 22px; }
+        .btn-tip { background-color: #ffd60a; color: #000; height: 55px; font-size: 20px; }
+        
+        .expense-row { display: flex; gap: 10px; }
+        .expense-input { flex: 1; margin: 0; padding: 15px; font-size: 18px; }
+        .btn-expense { flex: 1; background-color: #ff9f0a; color: white; border-radius: 12px; font-size: 18px; }
     </style>
 </head>
 <body>
 
-<!-- Setup Screen -->
 <div id="setup-screen">
-    <h2 style="margin:0; color: #f2f2f7;">Start Shift</h2>
-    <p style="color: #8e8e93; margin-top: 5px;">Enter starting pocket cash (Fond de Caisse)</p>
-    <input type="number" id="fond-input" placeholder="0 DH" inputmode="numeric">
+    <h2 style="margin:0 0 5px 0; color: #f2f2f7;">Start Shift</h2>
+    <p style="color: #8e8e93; margin: 0 0 20px 0; font-size: 14px;">Enter starting amounts</p>
+    
+    <input type="number" id="fond-input" placeholder="Fond de Caisse (DH)" inputmode="numeric">
+    <input type="number" id="rosseta-input" placeholder="Initial Rosseta (DH)" inputmode="numeric">
+    
     <button class="start-btn" onclick="startShift()">Open Caisse</button>
 </div>
 
-<!-- Main App Screen -->
 <div id="app-screen">
     <div class="header">
         <div class="stat-box">
@@ -58,38 +70,55 @@
             <div class="stat-value text-blue" id="pocket-display">0</div>
         </div>
         <div class="stat-box">
-            <div class="stat-label">Unpaid Tables</div>
+            <div class="stat-label">Unpaid</div>
             <div class="stat-value text-green" id="unpaid-display">0</div>
         </div>
+        <div class="stat-box">
+            <div class="stat-label">Rosseta</div>
+            <div class="stat-value text-purple" id="rosseta-display">0</div>
+        </div>
+    </div>
+
+    <div class="top-controls">
+        <button class="btn-undo" onclick="undoLast()">⟲ Undo Last</button>
+        <button class="btn-end" onclick="endShift()">End Shift</button>
     </div>
 
     <div class="scroll-area">
         <div class="section">
             <div class="section-title">1. New Order Served (To pay later)</div>
             <div class="btn-grid">
-                <button class="btn-order" onclick="addOrder(3)">+3</button>
-                <button class="btn-order" onclick="addOrder(11)">+11</button>
-                <button class="btn-order" onclick="addOrder(15)">+15</button>
+                <button class="btn-order" onclick="addAction('order', 3)">+3</button>
+                <button class="btn-order" onclick="addAction('order', 11)">+11</button>
+                <button class="btn-order" onclick="addAction('order', 15)">+15</button>
             </div>
         </div>
 
         <div class="section">
             <div class="section-title">2. Customer Paid (Add to Pocket)</div>
             <div class="btn-grid">
-                <button class="btn-pay" onclick="addPay(3)">+3</button>
-                <button class="btn-pay" onclick="addPay(11)">+11</button>
-                <button class="btn-pay" onclick="addPay(15)">+15</button>
+                <button class="btn-pay" onclick="addAction('pay', 3)">+3</button>
+                <button class="btn-pay" onclick="addAction('pay', 11)">+11</button>
+                <button class="btn-pay" onclick="addAction('pay', 15)">+15</button>
             </div>
         </div>
 
         <div class="section">
             <div class="section-title">3. Pourboire (Kept in pocket)</div>
             <div class="btn-grid tips">
-                <button class="btn-tip" onclick="addTip(1)">+1</button>
-                <button class="btn-tip" onclick="addTip(2)">+2</button>
-                <button class="btn-tip" onclick="addTip(3)">+3</button>
-                <button class="btn-tip" onclick="addTip(4)">+4</button>
-                <button class="btn-tip" onclick="addTip(5)">+5</button>
+                <button class="btn-tip" onclick="addAction('tip', 1)">+1</button>
+                <button class="btn-tip" onclick="addAction('tip', 2)">+2</button>
+                <button class="btn-tip" onclick="addAction('tip', 3)">+3</button>
+                <button class="btn-tip" onclick="addAction('tip', 4)">+4</button>
+                <button class="btn-tip" onclick="addAction('tip', 5)">+5</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">4. Shop Expenses (Paid from pocket)</div>
+            <div class="expense-row">
+                <input type="number" id="expense-input" class="expense-input" placeholder="Amount..." inputmode="numeric">
+                <button class="btn-expense" onclick="addCustomExpense()">- Deduct</button>
             </div>
         </div>
     </div>
@@ -97,48 +126,111 @@
 
 <script>
     let fond = 0;
+    let initialRosseta = 0;
     let totalOrders = 0;
     let totalPaid = 0;
     let totalTips = 0;
+    let totalExpenses = 0;
+    let actionHistory = [];
+
+    window.onload = function() {
+        const savedData = localStorage.getItem('shiftDataV2');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            fond = data.fond || 0;
+            initialRosseta = data.initialRosseta || 0;
+            totalOrders = data.totalOrders || 0;
+            totalPaid = data.totalPaid || 0;
+            totalTips = data.totalTips || 0;
+            totalExpenses = data.totalExpenses || 0;
+            actionHistory = data.actionHistory || [];
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'flex';
+            updateUI();
+        }
+    };
 
     function startShift() {
-        const input = document.getElementById('fond-input').value;
-        fond = parseFloat(input) || 0;
+        fond = parseFloat(document.getElementById('fond-input').value) || 0;
+        initialRosseta = parseFloat(document.getElementById('rosseta-input').value) || 0;
+        
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('app-screen').style.display = 'flex';
+        
+        saveData();
         updateUI();
     }
 
-    // Adds value to the Unpaid Tables pool
-    function addOrder(amount) {
-        totalOrders += amount;
+    function addAction(type, amount) {
+        if (type === 'order') totalOrders += amount;
+        if (type === 'pay') totalPaid += amount;
+        if (type === 'tip') totalTips += amount;
+        if (type === 'expense') totalExpenses += amount;
+
+        actionHistory.push({ type: type, amount: amount });
+        
+        saveData();
         updateUI();
     }
 
-    // Subtracts from Unpaid Tables, adds to Pocket
-    function addPay(amount) {
-        totalPaid += amount;
+    function addCustomExpense() {
+        const input = document.getElementById('expense-input');
+        const amount = parseFloat(input.value);
+        if (amount > 0) {
+            addAction('expense', amount);
+            input.value = ''; // clear field after clicking deduct
+        }
+    }
+
+    function undoLast() {
+        if (actionHistory.length === 0) return alert("Nothing to undo!");
+
+        const lastAction = actionHistory.pop();
+        
+        if (lastAction.type === 'order') totalOrders -= lastAction.amount;
+        if (lastAction.type === 'pay') totalPaid -= lastAction.amount;
+        if (lastAction.type === 'tip') totalTips -= lastAction.amount;
+        if (lastAction.type === 'expense') totalExpenses -= lastAction.amount;
+
+        saveData();
         updateUI();
     }
 
-    // Adds strictly to Pocket without affecting order balance
-    function addTip(amount) {
-        totalTips += amount;
-        updateUI();
+    function endShift() {
+        if(confirm("End shift and clear all data?")) {
+            localStorage.removeItem('shiftDataV2');
+            location.reload(); 
+        }
+    }
+
+    function saveData() {
+        const data = {
+            fond: fond,
+            initialRosseta: initialRosseta,
+            totalOrders: totalOrders,
+            totalPaid: totalPaid,
+            totalTips: totalTips,
+            totalExpenses: totalExpenses,
+            actionHistory: actionHistory
+        };
+        localStorage.setItem('shiftDataV2', JSON.stringify(data));
     }
 
     function updateUI() {
-        // Pocket calculates the original float, plus payments made, plus tips.
-        const pocket = fond + totalPaid + totalTips;
-        // Unpaid evaluates what was sent to tables minus what has been collected.
+        // Pocket = starting cash + collected cash + tips - money spent
+        const pocket = fond + totalPaid + totalTips - totalExpenses;
+        // Unpaid = orders placed - orders paid for
         const unpaid = totalOrders - totalPaid;
+        // Rosseta = Initial machine value + value of all new orders placed today
+        const currentRosseta = initialRosseta + totalOrders;
 
-        document.getElementById('pocket-display').innerText = pocket + ' DH';
+        document.getElementById('pocket-display').innerText = pocket;
+        document.getElementById('rosseta-display').innerText = currentRosseta;
         
         const unpaidEl = document.getElementById('unpaid-display');
-        unpaidEl.innerText = unpaid + ' DH';
+        unpaidEl.innerText = unpaid;
         
-        // Color coding for visual speed
         if (unpaid > 0) {
             unpaidEl.className = 'stat-value text-red';
         } else {
